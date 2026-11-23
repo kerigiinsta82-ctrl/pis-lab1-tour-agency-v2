@@ -1,5 +1,7 @@
 # ПИС, ЛР1 — «Туристическая фирма» (тема 14)
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kerigiinsta82-ctrl/pis-lab1-tour-agency-v2/blob/main/lab1.ipynb)
+
 Лабораторная работа №1: ER-модель предметной области и класс основной сущности на Python.
 
 | Пункт | Где смотреть |
@@ -22,8 +24,9 @@
 [lab1.ipynb](lab1.ipynb) — ноутбук со всеми пунктами по порядку: код классов и демонстрация.
 Он самодостаточный, картинки встроены, дополнительные файлы загружать не нужно.
 
-1. Откройте <https://colab.research.google.com> → **Файл → Загрузить блокнот** → выберите `lab1.ipynb`
-   (или, если репозиторий на GitHub, вкладка **GitHub** и ссылка на репозиторий).
+1. Нажмите кнопку **Open in Colab** вверху или откройте ссылку:
+   <https://colab.research.google.com/github/kerigiinsta82-ctrl/pis-lab1-tour-agency-v2/blob/main/lab1.ipynb>.
+   Можно и вручную: **Файл → Загрузить блокнот** → `lab1.ipynb`.
 2. **Среда выполнения → Выполнить все.**
 
 Ноутбук собирается из исходников командой `python tools/build_notebook.py`. После изменения
