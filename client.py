@@ -22,6 +22,35 @@ class Client:
 
     # ---------- валидация (статические методы) ----------
 
+    NAME_PATTERN = r"[A-Za-zА-Яа-яЁё]+(-[A-Za-zА-Яа-яЁё]+)*"
+    PHONE_PATTERN = r"(\+7|8)\d{10}"
+    EMAIL_PATTERN = r"[\w.+-]+@[\w-]+(\.[\w-]+)+"
+
+    @staticmethod
+    def _validate_string(value, field, max_len, *, required=True, min_len=1,
+                         pattern=None, pattern_msg="неверный формат"):
+        """Общая проверка строкового поля.
+
+        Обрезает пробелы по краям. Необязательное поле (required=False)
+        может быть None или пустой строкой — тогда возвращается None.
+        """
+        if value is None and not required:
+            return None
+        if not isinstance(value, str):
+            raise TypeError(f"{field}: ожидается строка" + ("" if required else " или None"))
+        value = value.strip()
+        if not value:
+            if not required:
+                return None
+            raise ValueError(f"{field}: не может быть пустым")
+        if len(value) < min_len:
+            raise ValueError(f"{field}: не короче {min_len} символов")
+        if len(value) > max_len:
+            raise ValueError(f"{field}: не длиннее {max_len} символов")
+        if pattern and not re.fullmatch(pattern, value):
+            raise ValueError(f"{field}: {pattern_msg}")
+        return value
+
     @staticmethod
     def validate_client_id(value):
         if isinstance(value, bool) or not isinstance(value, int):
@@ -32,83 +61,37 @@ class Client:
 
     @staticmethod
     def validate_last_name(value):
-        if not isinstance(value, str):
-            raise TypeError("last_name: ожидается строка")
-        value = value.strip()
-        if not value:
-            raise ValueError("last_name: не может быть пустым")
-        if len(value) > 50:
-            raise ValueError("last_name: не длиннее 50 символов")
-        if not re.fullmatch(r"[A-Za-zА-Яа-яЁё]+(-[A-Za-zА-Яа-яЁё]+)*", value):
-            raise ValueError("last_name: только буквы и дефис")
-        return value
+        return Client._validate_string(value, "last_name", 50, pattern=Client.NAME_PATTERN,
+                                       pattern_msg="только буквы и дефис")
 
     @staticmethod
     def validate_first_name(value):
-        if not isinstance(value, str):
-            raise TypeError("first_name: ожидается строка")
-        value = value.strip()
-        if not value:
-            raise ValueError("first_name: не может быть пустым")
-        if len(value) > 50:
-            raise ValueError("first_name: не длиннее 50 символов")
-        if not re.fullmatch(r"[A-Za-zА-Яа-яЁё]+(-[A-Za-zА-Яа-яЁё]+)*", value):
-            raise ValueError("first_name: только буквы и дефис")
-        return value
+        return Client._validate_string(value, "first_name", 50, pattern=Client.NAME_PATTERN,
+                                       pattern_msg="только буквы и дефис")
 
     @staticmethod
     def validate_patronymic(value):
-        if value is None:
-            return None
-        if not isinstance(value, str):
-            raise TypeError("patronymic: ожидается строка или None")
-        value = value.strip()
-        if not value:
-            return None
-        if len(value) > 50:
-            raise ValueError("patronymic: не длиннее 50 символов")
-        if not re.fullmatch(r"[A-Za-zА-Яа-яЁё]+(-[A-Za-zА-Яа-яЁё]+)*", value):
-            raise ValueError("patronymic: только буквы и дефис")
-        return value
+        return Client._validate_string(value, "patronymic", 50, required=False,
+                                       pattern=Client.NAME_PATTERN,
+                                       pattern_msg="только буквы и дефис")
 
     @staticmethod
     def validate_address(value):
-        if not isinstance(value, str):
-            raise TypeError("address: ожидается строка")
-        value = value.strip()
-        if not value:
-            raise ValueError("address: не может быть пустым")
-        if len(value) > 200:
-            raise ValueError("address: не длиннее 200 символов")
-        if len(value) < 5:
-            raise ValueError("address: слишком короткий")
-        return value
+        return Client._validate_string(value, "address", 200, min_len=5)
 
     @staticmethod
     def validate_phone(value):
-        if not isinstance(value, str):
-            raise TypeError("phone: ожидается строка")
-        value = re.sub(r"[\s()\-]", "", value)
-        if not value:
-            raise ValueError("phone: не может быть пустым")
-        if not re.fullmatch(r"(\+7|8)\d{10}", value):
-            raise ValueError("phone: формат +7XXXXXXXXXX или 8XXXXXXXXXX")
+        if isinstance(value, str):
+            value = re.sub(r"[\s()\-]", "", value)
+        value = Client._validate_string(value, "phone", 12, pattern=Client.PHONE_PATTERN,
+                                        pattern_msg="формат +7XXXXXXXXXX или 8XXXXXXXXXX")
         return "+7" + value[-10:]
 
     @staticmethod
     def validate_email(value):
-        if value is None:
-            return None
-        if not isinstance(value, str):
-            raise TypeError("email: ожидается строка или None")
-        value = value.strip()
-        if not value:
-            return None
-        if len(value) > 100:
-            raise ValueError("email: не длиннее 100 символов")
-        if not re.fullmatch(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", value):
-            raise ValueError("email: некорректный адрес")
-        return value
+        return Client._validate_string(value, "email", 100, required=False,
+                                       pattern=Client.EMAIL_PATTERN,
+                                       pattern_msg="некорректный адрес")
 
     # ---------- свойства ----------
 
