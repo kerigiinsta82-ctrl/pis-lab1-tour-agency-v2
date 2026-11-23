@@ -5,3 +5,4 @@
 | Пункт | Где смотреть |
 |---|---|
 | 1. ER-модель (4 таблицы, 3НФ) | [docs/er_model.md](docs/er_model.md), [docs/schema.sql](docs/schema.sql) |
+| 2. Выбор основной сущности — Клиент | [docs/er_model.md](docs/er_model.md#основная-сущность-для-лр1лр4-client-клиент) |
