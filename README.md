@@ -11,3 +11,4 @@
 | 5. Устранение повтора кода в валидации | [client.py](client.py) — `_validate_string` |
 | 6. Перегрузка конструктора (поля, словарь, JSON, строка) | [client.py](client.py) — `__init__`, `_parse_string` |
 | 7. Полный и краткий вывод, сравнение на равенство | [client.py](client.py) — `__str__`, `short_str`, `__eq__` |
+| 8. Краткий класс `ClientShort` | [client_short.py](client_short.py) |
