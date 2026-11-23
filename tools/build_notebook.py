@@ -1,39 +1,30 @@
 """Собирает lab1.ipynb для Google Colab из исходников проекта.
 
 Код классов берётся прямо из client_short.py и client.py, поэтому ноутбук
-всегда совпадает с репозиторием. Картинки встраиваются во вложения ячеек, чтобы
-он работал в Colab без загрузки дополнительных файлов.
+всегда совпадает с репозиторием. Картинки подгружаются по прямым ссылкам
+из публичного репозитория на GitHub: Colab, открывающий ноутбук с GitHub,
+не показывает вложения ячеек.
 
 Запуск:  python tools/build_notebook.py
 """
-import base64
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+RAW = "https://raw.githubusercontent.com/kerigiinsta82-ctrl/pis-lab1-tour-agency-v2/main/docs/"
 
 
 def src(name):
     return (ROOT / name).read_text(encoding="utf-8")
 
 
-IMAGES = ("er_diagram.png", "class_diagram.png")
-
-
 def image(name):
-    """Ссылка на картинку-вложение ячейки (стандарт Jupyter, Colab его понимает)."""
-    return f"![{name}](attachment:{name})"
+    """Картинка из папки docs репозитория на GitHub."""
+    return f"![{name}]({RAW}{name})"
 
 
 def md(text):
-    cell = {"cell_type": "markdown", "metadata": {}, "source": text.strip("\n")}
-    attached = [n for n in IMAGES if f"attachment:{n}" in text]
-    if attached:
-        cell["attachments"] = {
-            n: {"image/png": base64.b64encode((ROOT / "docs" / n).read_bytes()).decode()}
-            for n in attached
-        }
-    return cell
+    return {"cell_type": "markdown", "metadata": {}, "source": text.strip("\n")}
 
 
 def code(text):
