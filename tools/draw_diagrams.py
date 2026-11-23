@@ -35,7 +35,8 @@ class Box:
 
     def __init__(self, x, y, title, sections, width=None, subtitle=None):
         self.x, self.y, self.title, self.sections, self.subtitle = x, y, title, sections, subtitle
-        widths = [TITLE.getlength(title)] + [TEXT.getlength(s) for sec in sections for s in sec]
+        widths = [TITLE.getlength(title)] + [TEXT.getlength(s.lstrip("$")) for sec in sections
+                                             for s in sec]
         self.w = width or int(max(widths)) + 2 * self.PAD
         head = 40 + (22 if subtitle else 0)
         self.head_h = head
@@ -55,8 +56,14 @@ class Box:
                 d.line([x, cy, x + w, cy], fill=INK, width=2)
             cy += self.PAD // 2
             for s in sec:
+                static = s.startswith("$")
+                s = s.lstrip("$")
                 color = KEY if (" PK" in s or " FK" in s) else INK
                 d.text((x + self.PAD, cy), s, font=TEXT, fill=color)
+                if static:  # в UML статические члены подчёркиваются
+                    uy = cy + 19
+                    d.line([x + self.PAD, uy, x + self.PAD + TEXT.getlength(s), uy], fill=INK,
+                           width=1)
                 cy += self.LINE_H
             cy += self.PAD // 2
 
@@ -133,6 +140,87 @@ def draw_er():
     img.save(DOCS / "er_diagram.png")
 
 
+def draw_classes():
+    """UML-диаграмма классов. Строки с «$» в начале — статические (подчёркиваются)."""
+    short = Box(40, 40, "ClientShort", [
+        ["$+ FIELDS: tuple", "$+ OPTIONAL_FIELDS: tuple", "$+ SEPARATOR: str",
+         "$+ NAME_PATTERN: str", "$+ PHONE_PATTERN: str",
+         "- __client_id: int", "- __last_name: str", "- __first_name: str",
+         "- __patronymic: str | None", "- __phone: str"],
+        ["+ __init__(*args, **kwargs)",
+         "$# _collect_values(args, kwargs): dict",
+         "$# _parse_string(text: str): dict",
+         "# _fill(values: dict)",
+         "$# _validate_string(value, field, max_len, ...): str",
+         "$+ validate_client_id(value): int",
+         "$+ validate_last_name(value): str",
+         "$+ validate_first_name(value): str",
+         "$+ validate_patronymic(value): str | None",
+         "$+ validate_phone(value): str",
+         "+ «property» client_id: int",
+         "+ «property» last_name: str",
+         "+ «property» first_name: str",
+         "+ «property» patronymic: str | None",
+         "+ «property» phone: str",
+         "+ to_dict(): dict",
+         "+ full_name(): str",
+         "+ short_name(): str",
+         "+ short_str(): str",
+         "+ __str__(): str",
+         "+ __repr__(): str",
+         "+ __eq__(other): bool"],
+    ], subtitle="базовый класс — краткие данные")
+    full = Box(short.x + short.w + 170, 40, "Client", [
+        ["$+ FIELDS: tuple", "$+ OPTIONAL_FIELDS: tuple", "$+ EMAIL_PATTERN: str",
+         "- __address: str", "- __email: str | None"],
+        ["# _fill(values: dict)  {переопределён}",
+         "+ to_short(): ClientShort",
+         "$+ validate_address(value): str",
+         "$+ validate_email(value): str | None",
+         "+ «property» address: str",
+         "+ «property» email: str | None",
+         "+ __str__(): str  {переопределён}"],
+    ], subtitle="наследник — полные данные")
+    legend = [
+        "Обозначения:",
+        "+ public   # protected (_имя)   - private (__имя)",
+        "подчёркнуто — статический член (класса)",
+        "«property» — свойство с геттером и сеттером",
+        "сеттеры вызывают validate_*",
+        "",
+        "Client наследует конструктор, валидацию,",
+        "общие поля, краткий вывод и сравнение.",
+        "to_short() создаёт объект ClientShort.",
+    ]
+    W = full.x + full.w + 40
+    H = max(short.y + short.h, full.y + full.h + 60 + len(legend) * 24) + 40
+    img = Image.new("RGB", (W, H), "white")
+    d = ImageDraw.Draw(img)
+    for b in (short, full):
+        b.draw(d)
+    # наследование: сплошная линия и полый треугольник у родителя
+    y = full.y + full.head_h / 2 + 40
+    tip = short.x + short.w
+    d.line([full.x, y, tip + 22, y], fill=INK, width=2)
+    d.polygon([(tip, y), (tip + 22, y - 12), (tip + 22, y + 12)], fill="white", outline=INK,
+              width=2)
+    d.text(((tip + full.x) / 2 + 10, y - 20), "наследует", font=SMALL, fill=INK, anchor="mm")
+    # зависимость: to_short() создаёт ClientShort (пунктир, открытая стрелка)
+    y2 = full.y + full.head_h + 5 * Box.LINE_H + Box.PAD + 2 * Box.LINE_H
+    x = full.x
+    while x > tip + 6:
+        d.line([x, y2, max(x - 10, tip), y2], fill=INK, width=2)
+        x -= 18
+    d.line([tip, y2, tip + 14, y2 - 8], fill=INK, width=2)
+    d.line([tip, y2, tip + 14, y2 + 8], fill=INK, width=2)
+    d.text(((tip + full.x) / 2 + 10, y2 - 16), "«create»", font=SMALL, fill=INK, anchor="mm")
+    ly = full.y + full.h + 40
+    for i, s in enumerate(legend):
+        d.text((full.x, ly + i * 24), s, font=SMALL, fill=INK)
+    img.save(DOCS / "class_diagram.png")
+
+
 if __name__ == "__main__":
     draw_er()
+    draw_classes()
     print("saved to", DOCS)

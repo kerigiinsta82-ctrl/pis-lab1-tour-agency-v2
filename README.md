@@ -13,3 +13,4 @@
 | 7. Полный и краткий вывод, сравнение на равенство | [client.py](client.py) — `__str__`, `short_str`, `__eq__` |
 | 8. Краткий класс `ClientShort` | [client_short.py](client_short.py) |
 | 9. Иерархия наследования `ClientShort` → `Client` без повтора кода | [client_short.py](client_short.py), [client.py](client.py) |
+| 10. Диаграмма классов | [docs/class_diagram.md](docs/class_diagram.md), [docs/class_diagram.png](docs/class_diagram.png) |
