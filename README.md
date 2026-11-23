@@ -15,6 +15,8 @@
 | 9. Иерархия наследования `ClientShort` → `Client` без повтора кода | [client_short.py](client_short.py), [client.py](client.py) |
 | 10. Диаграмма классов | [docs/class_diagram.md](docs/class_diagram.md), [docs/class_diagram.png](docs/class_diagram.png) |
 
+Ответы на теоретические вопросы: [docs/answers.md](docs/answers.md).
+
 ## Показ в Google Colab
 
 [lab1.ipynb](lab1.ipynb) — ноутбук со всеми пунктами по порядку: код классов и демонстрация.
