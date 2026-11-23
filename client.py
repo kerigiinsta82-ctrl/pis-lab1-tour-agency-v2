@@ -76,6 +76,42 @@ class Client:
             values["client_id"] = int(values["client_id"])
         return values
 
+    # ---------- вывод и сравнение ----------
+
+    def to_dict(self):
+        """Все поля объекта в виде словаря (в порядке FIELDS)."""
+        return {field: getattr(self, field) for field in Client.FIELDS}
+
+    def full_name(self):
+        """Фамилия Имя Отчество (без отчества, если его нет)."""
+        return " ".join(p for p in (self.last_name, self.first_name, self.patronymic) if p)
+
+    def short_name(self):
+        """Фамилия и инициалы: «Иванов И. И.»."""
+        initials = " ".join(f"{p[0]}." for p in (self.first_name, self.patronymic) if p)
+        return f"{self.last_name} {initials}"
+
+    def __str__(self):
+        """Полная версия объекта."""
+        return (f"Клиент №{self.client_id}: {self.full_name()}\n"
+                f"  Адрес:   {self.address}\n"
+                f"  Телефон: {self.phone}\n"
+                f"  E-mail:  {self.email or '—'}")
+
+    def short_str(self):
+        """Краткая версия объекта: ФИО с инициалами и один контакт."""
+        return f"{self.short_name()}, тел. {self.phone}"
+
+    def __repr__(self):
+        args = ", ".join(f"{k}={v!r}" for k, v in self.to_dict().items())
+        return f"{type(self).__name__}({args})"
+
+    def __eq__(self, other):
+        """Клиенты равны, если это объекты одного класса с одинаковыми полями."""
+        if type(other) is not type(self):
+            return NotImplemented
+        return self.to_dict() == other.to_dict()
+
     # ---------- валидация (статические методы) ----------
 
     NAME_PATTERN = r"[A-Za-zА-Яа-яЁё]+(-[A-Za-zА-Яа-яЁё]+)*"
