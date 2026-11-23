@@ -9,3 +9,4 @@
 | 3. Класс `Client`, инкапсуляция полей | [client.py](client.py) |
 | 4. Статические методы валидации | [client.py](client.py) — `validate_*` |
 | 5. Устранение повтора кода в валидации | [client.py](client.py) — `_validate_string` |
+| 6. Перегрузка конструктора (поля, словарь, JSON, строка) | [client.py](client.py) — `__init__`, `_parse_string` |

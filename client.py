@@ -1,4 +1,5 @@
 """Клиент туристической фирмы."""
+import json
 import re
 
 
@@ -11,14 +12,69 @@ class Client:
     через сеттеры, поэтому объект с недопустимыми полями создать нельзя.
     """
 
-    def __init__(self, client_id, last_name, first_name, patronymic, address, phone, email):
-        self.client_id = client_id
-        self.last_name = last_name
-        self.first_name = first_name
-        self.patronymic = patronymic
-        self.address = address
-        self.phone = phone
-        self.email = email
+    FIELDS = ("client_id", "last_name", "first_name", "patronymic", "address", "phone", "email")
+    OPTIONAL_FIELDS = ("patronymic", "email")
+    SEPARATOR = ";"
+
+    def __init__(self, *args, **kwargs):
+        """Перегруженный конструктор. Варианты вызова:
+
+        Client(1, "Иванов", "Иван", "Иванович", "адрес", "+79161234567", "a@b.ru")
+        Client(client_id=1, last_name="Иванов", ...)             — именованные аргументы
+        Client({"client_id": 1, "last_name": "Иванов", ...})     — словарь
+        Client('{"client_id": 1, "last_name": "Иванов", ...}')   — JSON-строка
+        Client("1;Иванов;Иван;Иванович;адрес;+79161234567;a@b.ru") — строка через «;»
+
+        Необязательные поля (отчество, e-mail) можно не передавать.
+        """
+        if len(args) == 1 and not kwargs and isinstance(args[0], (str, dict)):
+            data = args[0]
+            values = Client._parse_string(data) if isinstance(data, str) else dict(data)
+        else:
+            if len(args) > len(Client.FIELDS):
+                raise TypeError(f"слишком много аргументов: {len(args)}")
+            values = dict(zip(Client.FIELDS, args))
+            for key, value in kwargs.items():
+                if key in values:
+                    raise TypeError(f"{key}: значение передано дважды")
+                values[key] = value
+
+        unknown = set(values) - set(Client.FIELDS)
+        if unknown:
+            raise TypeError(f"неизвестные поля: {', '.join(sorted(unknown))}")
+        missing = [f for f in Client.FIELDS if f not in values and f not in Client.OPTIONAL_FIELDS]
+        if missing:
+            raise TypeError(f"не заданы обязательные поля: {', '.join(missing)}")
+
+        self.client_id = values["client_id"]
+        self.last_name = values["last_name"]
+        self.first_name = values["first_name"]
+        self.patronymic = values.get("patronymic")
+        self.address = values["address"]
+        self.phone = values["phone"]
+        self.email = values.get("email")
+
+    @staticmethod
+    def _parse_string(text):
+        """Разбирает JSON-объект или строку с полями через SEPARATOR в словарь."""
+        text = text.strip()
+        if text.startswith("{"):
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"некорректный JSON: {e}") from None
+            if not isinstance(data, dict):
+                raise ValueError("JSON должен описывать объект")
+            return data
+
+        parts = [p.strip() for p in text.split(Client.SEPARATOR)]
+        if len(parts) != len(Client.FIELDS):
+            raise ValueError(f"в строке должно быть {len(Client.FIELDS)} полей через "
+                             f"«{Client.SEPARATOR}», а не {len(parts)}")
+        values = dict(zip(Client.FIELDS, parts))
+        if values["client_id"].isdigit():
+            values["client_id"] = int(values["client_id"])
+        return values
 
     # ---------- валидация (статические методы) ----------
 
