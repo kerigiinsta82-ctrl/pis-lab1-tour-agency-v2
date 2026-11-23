@@ -14,3 +14,22 @@
 | 8. Краткий класс `ClientShort` | [client_short.py](client_short.py) |
 | 9. Иерархия наследования `ClientShort` → `Client` без повтора кода | [client_short.py](client_short.py), [client.py](client.py) |
 | 10. Диаграмма классов | [docs/class_diagram.md](docs/class_diagram.md), [docs/class_diagram.png](docs/class_diagram.png) |
+
+## Показ в Google Colab
+
+[lab1.ipynb](lab1.ipynb) — ноутбук со всеми пунктами по порядку: код классов и демонстрация.
+Он самодостаточный, картинки встроены, дополнительные файлы загружать не нужно.
+
+1. Откройте <https://colab.research.google.com> → **Файл → Загрузить блокнот** → выберите `lab1.ipynb`
+   (или, если репозиторий на GitHub, вкладка **GitHub** и ссылка на репозиторий).
+2. **Среда выполнения → Выполнить все.**
+
+Ноутбук собирается из исходников командой `python tools/build_notebook.py`. После изменения
+классов пересоберите его, чтобы код в ноутбуке совпадал с `.py` файлами.
+
+## Запуск локально
+
+```
+python -m unittest -v           # тесты
+python tools/draw_diagrams.py   # перерисовать диаграммы (нужен Pillow)
+```
